@@ -1,0 +1,108 @@
+/* signup_form */
+#signup_form{
+    background-image: url('../images/signup.jpg');
+    min-height: 60rem;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: relative;
+}
+
+/* duplicate email error  */
+.duplicateEmailError{
+  color: tomato;
+  font-size: 15px;
+  font-weight: 500;
+  margin: -10px 0 10px 0;
+}
+/* signup_form */
+
+
+#login_form{
+    background-image: url('../images/login.jpg');
+    min-height: 41.3rem;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    position: relative;
+}
+
+.loginForm {
+    position: absolute;
+    right: 0;
+    margin: 80px 50px 50px;
+    width: 330px;
+    padding: 16px 20px;
+    background-color: white;
+}
+
+.Row input {
+    width: 90%;
+    padding: 15px;
+    margin: 5px 0 22px 0;
+    border: none;
+    background: #f1f1f1;
+    font-size: 15px;
+  }
+  
+  .Row input:focus{
+      background-color: #ddd;
+      outline: none;
+  }
+  .Row label{
+      color: #000;
+      font-size: 20px;
+      cursor: pointer;
+  }
+.Row label i {
+    color: rgb(243, 8, 8);
+    font-weight: 700;
+}
+label .svg{
+    margin-bottom: -3px;
+}
+  .loginForm button {
+      font-size: 20px;
+    background-color: #04AA6D;
+    color: white;
+    padding: 16px 20px;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    opacity: 0.8;
+    margin-bottom: 20px;
+  }
+  .loginForm button:hover{
+      opacity: 1;
+      transition: opacity .2s ease-in 0.3s;
+  }
+  .noaccount{
+      padding :0 0 15px;
+  }
+  .noaccount > span {
+      margin: 0 5px 0 10px;
+  }
+
+  #toggle{
+    position: absolute;
+    top: 57%;
+    right: 10%;
+    font-size: 23px;
+    cursor: pointer;
+  }
+  .toggle{
+    position: absolute;
+    top: 548px;
+    right: 10%;
+    font-size: 23px;
+    cursor: pointer;
+  
+  }
+
+  .toggle1{
+    position: absolute;
+    top:650px;
+    right: 10%;
+    font-size: 23px;
+    cursor: pointer;
+  }

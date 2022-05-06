@@ -1,0 +1,8 @@
+
+Post  http://localhost:5000/user/
+
+Content-Type: application/json;
+
+{
+    "firstName":"yasira"
+}

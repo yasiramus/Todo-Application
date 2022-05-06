@@ -1,0 +1,148 @@
+#main {
+  width: 80vw;
+  height: auto;
+  /* display: flex; */
+  padding: 4px 0;
+  margin: 0 auto;
+  box-shadow: -10px 0px 13px -7px #00000061, 10px 0px 13px -7px #0000005c,
+    inset -4px 16px 15px 5px rgba(0, 0, 0, 0);
+}
+
+.h2 {
+  margin: 5px 0;
+  color: #4f7c39;
+}
+.mainh2{
+  display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin: 10px 0;
+}
+#makeatask{
+  display: flex;
+  position: relative;
+margin: 25px;
+}
+.makeatask{
+  color: #ffffff;
+  font-size: 30px;
+  margin:0;
+}
+#makeatask::before{
+  content: '';
+  background-color: #d02718;
+  width: 120px;
+  height: 2px;
+  position: absolute;
+  top: 40px;
+  left: 5px;
+}
+
+/* form styling start  */
+.form {
+  padding: 1rem;
+  width: 50vw;
+  margin: 0 auto;
+  box-shadow: 0 0 6px 0 gray;
+  border-bottom-right-radius: 15px;
+  border-top-left-radius: 15px;
+  background-color: #4f7c39;
+}
+/* form styling ends  */
+
+.form-row{
+  margin-bottom: 10px;
+  margin-left: 20px;
+}
+/* label styling start  */
+label {
+  margin-top: 12px;
+  font-size: 20px;
+  color: #ffffff;
+}
+.label{
+  position: relative;
+  bottom: 40px;
+  left: 9px
+}
+/* label styling ends  */
+
+.appInput {
+  margin: 0 10px 0;
+  padding: 12px 5px;
+  width: 30em;
+  border-radius: 5px;
+  outline: none;
+  font-size: 18px;
+  color: green;
+  border-width: 1px;
+  border-style: solid;
+  box-shadow: 0px 0px 5px rgba(66, 66, 66, 0.75);
+  text-shadow: 0px 0px 5px rgba(66, 66, 66, 0.75);
+}
+
+.appInput::placeholder {
+  font-size: 20px;
+  color: green;
+}
+textarea{
+  margin-left: 20px!important;
+  resize: none;
+  height: 20vh;
+}
+#btn{
+  margin-left: 24rem;
+}
+.appButton {
+  margin-right: 10px;
+  font-size: 17px;
+  cursor: pointer;
+  box-shadow: 0px 10px 14px -7px #266a08;
+  background: linear-gradient(to bottom, #77b55a 5%, #315420 100%);
+  color: #ffffff;
+  border-radius: 5px;
+  border: none;
+  /* border: 2px solid #4b8f29; */
+  font-weight: bold;
+  padding: 10px 12px;
+  text-shadow: 0px 1px 0px #5b8a3c;
+}
+
+.appButton:hover {
+  background: linear-gradient(to bottom, #72b352 5%, #77b55a 100%);
+  background-color: #409517;
+}
+
+.cancel {
+  cursor: pointer;
+  background: linear-gradient(to bottom, #c62d1f 5%, #741c16 100%);
+  box-shadow: 0px 10px 14px -7px #541b17;
+  color: #ffffff;
+  border-radius: 5px;
+  /* border: 2px solid #d02718; */
+  border: none;
+  font-size: 17px;
+  font-weight: bold;
+  padding: 10px 12px;
+  text-shadow: 0px 1px 0px #810e05;
+}
+
+.cancel:hover {
+  background: linear-gradient(to bottom, #f24437 5%, #c62d1f 100%);
+  background-color: #f24437;
+}
+
+
+.taskComplete {
+  text-align: center;
+  font-size: 20px;
+  font-weight: 500;
+  color: #4f7c39;
+}
+.taskcreated{
+  margin: 0 0 -5px 70px;
+  font-size: 20px;
+  font-weight: 500;
+  color: #266a08;
+}
