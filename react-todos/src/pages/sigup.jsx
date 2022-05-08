@@ -96,21 +96,22 @@ function SignUp( ) {
                 console.log(data,'data');
 
                 // if user details has been saved it shold redirect the user to the login page  
-                if (data === "enter first name" ) {
-                   return setFirstNameError(data)
+                if (data === 'path') {
+                //    return setFirstNameError(data.message)
+                   alert('hkj')
                 }
 
-                if (data === "enter last name" ) {
-                    return setLastNameError(data)
-                 }
+                // if (data === "enter last name" ) {
+                //    setLastNameError(data)
+                //  }
 
-                 if (data === "enter email name" ) {
-                    return setEmailError(data)
-                 }
+                //  if (data === "enter email name" ) {
+                //     setEmailError(data)
+                //  }
 
-                 if (data === "enter password name" ) {
-                    return setPasswordError(data)
-                 }
+                //  if (data === "enter password name" ) {
+                //      setPasswordError(data)
+                //  }
                 if (data) {
                 
                     redirect("/", { replace: true })
@@ -119,15 +120,19 @@ function SignUp( ) {
 
             } catch (error) {
 
-                console.log(error.message, 'errormessage');
+                console.log(error.message, ' : errormessage');
 
                 if (error.message.includes(409)) {
                     setDuplicateEmailError("Sorry can't use this email, use a different one")
                 }
 
-                // if (error.message.includes(400)) {
-                //     setLastNameError("Please enterlast Name")
-                // }
+                if (error.message.includes(422)) {
+                    setLastNameError("Please enter last Name");
+                }
+
+                if (error.message.includes(422)) {
+                    setFirstNameError('hj')
+                }
 
             }
         }    

@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt'); //requirng  the bcrypt which is use for hashin
 const { User } = require('../model/user'); //requirng the User model using the destructing form
 
 // requiring the generateToken function
-const { generateToken } = require('../helper/gettoken');
+const { generateToken, getErrors } = require('../helper/gettoken');
 
 // sending or saving data to the database using the signUp 
 const sendData = async (req,  res ) => {
@@ -40,45 +40,26 @@ const sendData = async (req,  res ) => {
     catch (error) {
 
         // console.log(error, 'saving');
-        
-
-        // if (error.message.includes("User validation failed")) {
-        //     Object.values(error.errors).forEach(({ properties }) => {
-        //        return res.json({'message':error.errors[properties.path] = properties.message})
-            
-        //     })
-        // } 
-        
-        if (error.errors.firstName.properties.path === 'firstName') {
-             console.log(error.errors.firstName.properties.message)
-        }
-        
-//         if (error.errors.firstName.properties.path === 'firstName') {
-//             return res.json({"message": error.errors.firstName.properties.message })
-// }
 
         
-//         if (error.errors.lastName.properties.path === 'lastName') {
-//             console.log(error.errors.lastName.properties.message)
-//             return res.json({ message: error.errors.lastName.properties.message })
+        // if (error.errors.firstName.properties.path === 'firstName') {
+        //      console.log(error.errors.firstName.properties.message)
+        // }
 
-//         }
-
-        
-    //     if (error.errors.email.properties.path === 'email') {
-    //        return res.json(error.errors.email.properties.message)
-    //    }
-
-    //     if (error.errors.password.properties.path === 'password') {
-    //        return res.json(error.errors.password.properties.message)
-    //     }
-
-      
         // duplicate email error
         if (error.code === 11000) {
             
-               res.status(409).json(error)
+              return res.status(409).json(error)
         }
+
+
+        if (error.errors) {
+
+           return res.status(422).json(getErrors(error.errors))
+            // return res.json( getErrors(error.errors) )
+        }
+
+         res.status(402).json(error)
     }
 };
 

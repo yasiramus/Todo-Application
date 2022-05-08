@@ -1,13 +1,36 @@
-const jwt = require('jsonwebtoken'); //requiring json web token
+const jwt = require("jsonwebtoken"); //requiring json web token
+
+// generating jsonwebtoken function
+const generateToken = (id) => {
+  return jwt.sign({ id }, process.env.JWT_SECRET, {
+    expiresIn: 2 * 24 * 60 * 60 * 1000,
+  });
+};
+
+// getErrors function
+const getErrors = (err) => {
+
+  // setting an empty array
+  const arrayOfErrors = [];
+
+  // looping through the err using the parameter set 
+  Object.values(err).forEach(({ properties }) => {
+
+    // extracting the message and path properties from the object 
+      const { validator, type, value, ...props } = properties;
+      
+    // console.log('p', properties);
+      
+      arrayOfErrors.push(props); //pushing the prop into the empty arrayoferrors
+
+    //   console.log('b' , props);//this contains  { message: 'enter first name', path: 'firstName' }
+      
+  });
     
-    // generating jsonwebtoken function
-    const generateToken = (id) => {
-                    
-        return jwt.sign( { id }, process.env.JWT_SECRET, {
+  console.log("arra", arrayOfErrors);
 
-            expiresIn: 2 * 24 * 60 * 60 * 1000
-            
-        })
-    };
+    return arrayOfErrors; //returning the arrayof errors
+    
+};
 
-module.exports = { generateToken }
+module.exports = { generateToken, getErrors };
