@@ -25,13 +25,8 @@ const sendData = async (req,  res ) => {
             email,
             password
         }
-        
-        
-        // if (Data.firstName === "") {
-        //     return res.json({'message':'enter first name'})
-        // }
 
-        const saveData = await User( Data).save();   //save data
+        const saveData = await User( Data).save();  //save data
             
          res.status(201).json(saveData._id) // returns a user id 
 
@@ -39,12 +34,26 @@ const sendData = async (req,  res ) => {
 
     catch (error) {
 
-        // console.log(error, 'saving');
+        console.log(error.errors, ' : error handling');
 
+        // handling error for each input field when the user try submitting without entering details 
+        // the question mark is use to prevent the undefined of cant read properties when the use type in the input field
+        if (error?.errors?.firstName?.properties?.path === "firstName") {
+            return res.json(error.errors.firstName.properties.message);
+        }
+
+        if (error?.errors?.lastName?.properties?.path === 'lastName') {
+           return res.json(error.errors.lastName.properties.message);
+       }
+
+       if (error?.errors?.email?.properties?.path === 'email') {
+       return res.json(error.errors.email.properties.message);
+        }
         
-        // if (error.errors.firstName.properties.path === 'firstName') {
-        //      console.log(error.errors.firstName.properties.message)
-        // }
+        if (error?.errors?.password?.properties?.path === 'password') {
+            res.json(error.errors.password.properties.message);
+        }
+        
 
         // duplicate email error
         if (error.code === 11000) {
@@ -53,13 +62,14 @@ const sendData = async (req,  res ) => {
         }
 
 
-        if (error.errors) {
+        // if (error.errors) {
 
-           return res.status(422).json(getErrors(error.errors))
-            // return res.json( getErrors(error.errors) )
-        }
+        //    return res.status(422).json(getErrors(error.errors))
+        //     // return res.json( getErrors(error.errors) )
+        // }
 
-         res.status(402).json(error)
+        //  res.status(402).json(error)
+        
     }
 };
 
@@ -127,7 +137,7 @@ const populateTodo =async (req,  res) => {
         // populating of todo using the user id 
         const todo = await User.findById(id).populate('todos');
         
-        todo? res.status(200).json(todo) : res.status(500).json("sorry no user with such  " + id)
+        todo? res.status(200).json(todo) : res.status(500).json("sorry no user with such id " + id)
 
     } catch (error) {
 
