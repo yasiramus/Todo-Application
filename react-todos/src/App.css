@@ -17,7 +17,8 @@
     justify-content: center;
     align-items: center;
     gap: 10px;
-    margin: 10px 0;
+    /* margin: 10px 0; */
+    margin: 10px 0 80px;
 }
 #makeatask{
   display: flex;
@@ -39,6 +40,64 @@ margin: 25px;
   left: 5px;
 }
 
+/* logout */
+.logOut{
+  position: relative;
+}
+.logOut button {
+  background-color: rgb(180, 8, 8);
+    color: #ffffff;
+    margin: -75px 0 0 40px ;
+    position: absolute;
+    border: none;
+    padding: 7px 20px;
+    font-size: 15px;
+    border-bottom-right-radius: 15px;
+    border-top-left-radius: 15px;
+  cursor: pointer;
+  opacity: .8;
+    box-shadow: inset 5px 2px 5px 2px rgb(20 6 6 / 25%);
+}
+.logOut button:hover{
+    opacity: 1;
+    transition: opacity .2s ease-in 0.3s;
+}
+/* resetPassword */
+.resetPassword{
+  position: relative;
+ 
+}
+
+.resetPassword i {
+  font-size: 28px;
+    position: absolute;
+    right: 0;
+    margin: -83px 218px 0 0;
+    opacity: .6;
+}
+.resetPassword a {
+  position: absolute;
+    right: 0;
+    margin: -75px  37px 0 0;
+    font-size: 18px;
+    font-weight: 400;
+    /* background-color: rgb(22, 180, 8); */
+    color: #000;
+    text-decoration: none;
+    opacity: .8;
+}
+.resetPassword a:hover{
+  opacity: 1;
+  transition: opacity .2s ease-in 0.3s;
+}
+.resetPassword span{
+  position: absolute;
+  right: 0;
+  margin: -55px  25px 0 0;
+  font-size: 15px;
+  opacity: .7;
+}
+
 /* form styling start  */
 .form {
   padding: 1rem;
@@ -56,7 +115,7 @@ margin: 25px;
   margin-left: 20px;
 }
 /* label styling start  */
-label {
+.form-row label {
   margin-top: 12px;
   font-size: 20px;
   color: #ffffff;

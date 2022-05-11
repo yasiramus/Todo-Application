@@ -9,20 +9,19 @@ const userSchema = new Schema({
     firstName: {
         type: String,
         required: [true,'enter first name'],
-        minlength: [2, 'first name character should not be below 2.'],
+        minlength: [3, 'first name character should not be below 2.'],
         maxlength: [10, 'first name character should not exceed 9.']
     },
 
     lastName: {
         type: String,
         required: [true,'enter last name'],
-        minlength: [2, 'last name character should not be below 2.'],
+        minlength: [3, 'last name character should not be below 2.'],
         maxlength: [15, 'last name character should not exceed 14.']
     },
 
     otherName: {
         type: String,
-        // minlength: [2, 'other name character should not be below 2.'],
         maxlength: [10, 'other name character should not exceed 9.']
     },
 

@@ -2,9 +2,12 @@ import React, { useEffect, useState, useCallback } from "react";
 
 import Todos from "./components/todos";
 
-import { useNavigate } from "react-router-dom";
+import { useNavigate,Link } from "react-router-dom";
  
 import { BsClipboardCheck, BsJournalCheck } from "react-icons/bs"; //icons
+
+// password icon
+import { MdLockOutline } from "react-icons/md";
 
 // importation axios
 import axios from "axios";
@@ -104,7 +107,7 @@ function App() {
         const { data } = todo; //accessing the data object
           
           
-          console.log(data, 'hk');
+          // console.log(data.todos, 'hk');
     
         setTodos(data.todos); //displaying of todos info to the user
 
@@ -185,6 +188,22 @@ function App() {
   };
   
 
+  // loging out 
+  const logOut = async () => {
+    try {
+      // logout user url 
+      await axios.delete(`/user/logOut`)
+
+      localStorage.removeItem('id');//remove id
+
+      Redirect("/", { replace: true }); //redirect to the login page
+      
+    } catch (error) {
+      console.log('logout error : ', error);
+    }
+  };
+  // logout session ends here
+
   //completion of task
   // fxn to filter through the status 
   const getCompleteTask = useCallback (newStatus => {
@@ -223,6 +242,17 @@ function App() {
             <h2 className="h2"> A Todo App</h2>
           </div>
           {/* <p>Welcome <strong>{JSON.parse(localStorage.getItem("name"))}</strong></p> */}
+
+          <div className="logOut">
+            <button type="submit" onClick={logOut}>logOut</button>
+          </div>
+          
+          <div className="resetPassword">
+            <i><MdLockOutline/></i>
+            <Link to ="/resetpassword">Change your password </Link>
+            <span>change your password at any time</span>
+          </div>
+
           <form onSubmit={AddItems} className='form'>
             <div>
               <div className="main-form">

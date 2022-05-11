@@ -36,3 +36,14 @@
   
     //   setTodos([...mapped]);
     // };
+
+
+        //   const newPassword = { password };
+
+//     const user = await User.findOne({ email });
+//       console.log(user);
+//     const hashedPassword = await bcrypt.compare(password, newPassword )
+// console.log(hashedPassword);
+//       const userPassword = await User.findByIdAndUpdate( userId, { new: true }); //new means it should return a new value 
+//       res.status(200).json( userPassword )
+//       console.log(userPassword);

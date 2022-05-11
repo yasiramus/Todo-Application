@@ -1,8 +1,20 @@
 
-Post  http://localhost:5000/user/
+# Post  http://localhost:5000/user/
+
+# Content-Type: application/json;
+
+# {
+#     "firstName":"yasira"
+# }
+
+Post http://localhost:5000/user
 
 Content-Type: application/json;
 
 {
-    "firstName":"yasira"
+  "firstName":"ayishathgbgfhg hju",
+  "lastName":"bance",
+   "otherName":"faiza",
+  "email":"yasira@gmail.com",
+    "password":"12345"
 }

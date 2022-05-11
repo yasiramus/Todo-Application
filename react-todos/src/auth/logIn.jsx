@@ -23,7 +23,11 @@ function Login() {
 
   const [email, setEmail] = useState(""); //email useState
 
+  const [unRegisteredemail, setUnRegisteredEmail] = useState(''); //unregistered email
+
   const [password, setPassword] = useState(""); //password useState
+
+  const [incorrectPassword, setIncorrectPassword] = useState(""); //incorrect password
 
   // setting the toggle state 
   const [toggle, setToggle] = useState(false);
@@ -44,16 +48,8 @@ function Login() {
 
       const { data } = response;
 
-    // seeting theid in the local storage 
+    // setting of id in the local storage 
       window.localStorage.setItem("id", JSON.stringify(data.matches));
-
-      // console.log( window.localStorage.getItem("id", JSON.stringify(data.matches._id)))
-
-      // window.localStorage.setItem("firstName", JSON.stringify(data.matches.firstName));
-
-      // console.log( window.localStorage.getItem("email", JSON.stringify(data.matches.firstName)))
-      
-      // console.log(window.localStorage.getItem('id'));
       
       // matches is coming from the backend that from the user controller it a variable declared
       // if user exist it should redirect to the todo page
@@ -63,24 +59,22 @@ function Login() {
         // the replace, replaces the browser historys that is the previous datas in the browser
         redirect("/app", { replace: true })
 
-        
       }
 
-     
-
-        // window.localStorage.setItem("name",JSON.stringify())
-      // redirection isnt working 
-      //  else it should redirect the user to the signup page 
-      // else {
-
-      // return redirect("/signup", { replace: true });
-      // }
     }
     catch (error) {
 
-      console.log(error.message)
+      console.log(error.response.data);
 
-    }
+      //incorrect password
+      if (error.response.data === "incorrect password") {
+        return setIncorrectPassword(error.response.data)
+      }
+
+      // unregistered email
+      if( error.response.data.errors === "Authentication failed")
+          return setUnRegisteredEmail(error.response.data.errors )
+        };
 
   };
 
@@ -122,6 +116,8 @@ function Login() {
 
           />
 
+          <div className="duplicateEmailError">{unRegisteredemail}</div>
+
         </div>
 
         <div className="Row">
@@ -145,6 +141,8 @@ function Login() {
 
           <div id="toggle" onClick={showPassword}> { toggle ? <BsEye/> : <BsEyeSlash/> }</div>
 
+          <div className="duplicateEmailError">{incorrectPassword}</div>
+          
         </div>
 
         <div className="noaccount">

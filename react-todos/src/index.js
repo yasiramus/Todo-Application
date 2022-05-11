@@ -9,9 +9,11 @@ import './index.css';
 
 import App from './App';
 
-import Login from "./pages/logIn";
+import Login from "./auth/logIn"; //login
 
-import SignUp from "./pages/sigup";
+import SignUp from "./auth/sigup"; //signup
+
+import ResetPassword from "./auth/resetPassword"; //resetpassword
 
 
 axios.defaults.baseURL = 'http://localhost:5000/';
@@ -32,6 +34,8 @@ ReactDOM.render(
         <Route path='/signup' element={<SignUp />}></Route>
 
         <Route path='/app' element={<App />}></Route>
+        
+        <Route path='/resetpassword' element={<ResetPassword />}></Route>
         
       </Routes>
       
