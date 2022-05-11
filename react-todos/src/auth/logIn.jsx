@@ -53,7 +53,8 @@ function Login() {
       
       // matches is coming from the backend that from the user controller it a variable declared
       // if user exist it should redirect to the todo page
-      console.log('match', data.matches)
+      // console.log('match', data.matches)
+
       if (data.matches) {
         
         // the replace, replaces the browser historys that is the previous datas in the browser
@@ -81,6 +82,7 @@ function Login() {
   //show password
   const showPassword = () => {
 
+    // if the password input field is empty the toggling warningOnce;t work 
     if (password === '') {
       return
   }
@@ -116,7 +118,7 @@ function Login() {
 
           />
 
-          <div className="duplicateEmailError">{unRegisteredemail}</div>
+          {email && <div className="duplicateEmailError">{unRegisteredemail}</div>}
 
         </div>
 
@@ -141,7 +143,7 @@ function Login() {
 
           <div id="toggle" onClick={showPassword}> { toggle ? <BsEye/> : <BsEyeSlash/> }</div>
 
-          <div className="duplicateEmailError">{incorrectPassword}</div>
+          {password && <div className="duplicateEmailError">{incorrectPassword}</div>}
           
         </div>
 

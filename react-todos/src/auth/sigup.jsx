@@ -56,6 +56,14 @@ function SignUp() {
   const [passwordMaxLength, setPasswordMaxLength] = useState('');
   
 
+  const displayIndividualErrors = (errofArrays, b) => {
+      return errofArrays.filter(a => {
+        if (a.path === b) {
+         return setFirstNameError(a.message)
+        }
+      })
+  }
+
   // submit form function
   const SubmitForm = async (e) => {
     e.preventDefault();
@@ -96,9 +104,7 @@ function SignUp() {
       } catch (error) {
         console.log(error.response.data, " : errormessage");
 
-        // if (error.response.data) {
-        //     setFirstNameError(error.response.data.map(err => err.message))
-        // }
+        displayIndividualErrors(error.response.data)
        
         // input field error handling 
         if(error.response.data === "enter first name"){

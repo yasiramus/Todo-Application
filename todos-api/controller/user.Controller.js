@@ -28,17 +28,17 @@ const sendData = async (req, res) => {
 
     // handling error for each input field when the user try submitting without entering details
     //     // the question mark is use to prevent the undefined of cant read properties when the use type in the input field
-    if (error?.errors?.firstName?.properties?.path === "firstName") {
-      res.status(400).json(error.errors.firstName.properties.message);
-    } else if (error?.errors?.lastName?.properties?.path === "lastName") {
-      res.status(400).json(error.errors.lastName.properties.message);
-    } else if (error?.errors?.email?.properties?.path === "email") {
-      res.status(400).json(error.errors.email.properties.message);
-    } else if (error?.errors?.password?.properties?.path === "password") {
-      res.status(403).json(error.errors.password.properties.message);
-    } else {
-      res.status(422).json(error); // all error
-    }
+    // if (error?.errors?.firstName?.properties?.path === "firstName") {
+    //   res.status(400).json(error.errors.firstName.properties.message);
+    // } else if (error?.errors?.lastName?.properties?.path === "lastName") {
+    //   res.status(400).json(error.errors.lastName.properties.message);
+    // } else if (error?.errors?.email?.properties?.path === "email") {
+    //   res.status(400).json(error.errors.email.properties.message);
+    // } else if (error?.errors?.password?.properties?.path === "password") {
+    //   res.status(403).json(error.errors.password.properties.message);
+    // } else {
+    //   res.status(422).json(error); // all error
+    // }
 
     // duplicate email error
     if (error.code === 11000) {
@@ -46,10 +46,10 @@ const sendData = async (req, res) => {
     }
 
     // calling the get error function
-    // if (error.errors) {
-
-    //     res.status(422).json(getErrors(error.errors))
-    // }
+    if (error.errors) {
+        console.log(getErrors(error.errors))
+        res.status(422).json(getErrors(error.errors))
+    }
 
     //  res.status(422).json(error)//this sending all error message to thefrontend
   }
@@ -140,18 +140,12 @@ const resetPassword = async (req, res) => {
         async (err, cookiePresent) => {
           //if occur during the process of varify for the presence of the token
           if (err) {
-            // console.log(err, "----err---");
 
             return res.status(403).json(err);
           } else {
-            // console.log(cookiePresent, 'cook');
-
-            // return res.send(cookiePresent);
 
             //   find a user using its id, the one gotten from the cookie
             const user = await User.findOne({ _id: cookiePresent.id });
-
-            console.log("user", user);
 
             //   comparing the current password to save password in the database
             //   the password is the current password
@@ -160,11 +154,9 @@ const resetPassword = async (req, res) => {
               user.password
             );
 
-            // console.log(passwordMatches, "matches");
-
             // if the current password dont match to the one the user used during registration
             if (!passwordMatches) {
-              return res.status(401).json({ message: "incorrect details" });
+              return res.status(401).json("incorrect old password");
             }
 
             //   if the newpassword field is empty
@@ -172,7 +164,7 @@ const resetPassword = async (req, res) => {
               return res.sendStatus(400);
             }
 
-            //   if the password matches is should excute the code within the else block
+            //   if the password matches it should excute the code within the else block
             else {
               const salt = await bcrypt.genSalt(12); //generate the salt
 
@@ -191,12 +183,13 @@ const resetPassword = async (req, res) => {
               if (oldMatches) {
                 res
                   .status(422)
-                  .json({ message: "usage of previous password not allowed" });
+                  .json( "usage of previous password not allowed" );
               }
 
-              // if the new password dont match with new password it should go ahead
+              // if the new password dont match with old password it should go ahead
               //  to excute the code within the else block
               else {
+
                 //update the password to the new password
                 const updatePassword = await User.findByIdAndUpdate(
                   user._id,
@@ -211,16 +204,22 @@ const resetPassword = async (req, res) => {
                 //     { new: true }//the new means it should return a new value
                 //   );
 
-                console.log("updater", updatePassword);
 
-                res
-                  .status(201)
-                  .json({ message: "password has been change successfully" });
+                // delete cookie after password update 
+                if (updatePassword) {
+                  res.cookie("userAdmin", "", { maxAge: -1 });
+                  
+                  return res
+                    .status(201)
+                    .json({ message: "password has been change successfully" });
+                }
               }
             }
           }
         }
       );
+    } else {
+      return res.status(500).json("cookie not found"); //404 means not found
     }
   } catch (error) {
     console.log("changepassword", error);

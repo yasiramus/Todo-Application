@@ -194,7 +194,7 @@ function App() {
       // logout user url 
       await axios.delete(`/user/logOut`)
 
-      localStorage.removeItem('id');//remove id
+      window.localStorage.removeItem('id');//remove id
 
       Redirect("/", { replace: true }); //redirect to the login page
       
