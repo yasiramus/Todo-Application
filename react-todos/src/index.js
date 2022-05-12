@@ -15,6 +15,8 @@ import SignUp from "./auth/sigup"; //signup
 
 import ResetPassword from "./auth/resetPassword"; //resetpassword
 
+import ForgotPassword from "./auth/forgotpassword"; //forgotpassword
+
 
 axios.defaults.baseURL = 'http://localhost:5000/';
 // axios.defaults.headers.common['Authorization'] = 'AUTH_TOKEN';
@@ -36,7 +38,9 @@ ReactDOM.render(
         <Route path='/app' element={<App />}></Route>
         
         <Route path='/resetpassword' element={<ResetPassword />}></Route>
-        
+         
+        <Route path='/forgotpassword' element={<ForgotPassword/>}></Route>
+
       </Routes>
       
     </BrowserRouter>

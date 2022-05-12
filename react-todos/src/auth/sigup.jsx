@@ -55,14 +55,15 @@ function SignUp() {
 
   const [passwordMaxLength, setPasswordMaxLength] = useState('');
   
-
-  const displayIndividualErrors = (errofArrays, b) => {
-      return errofArrays.filter(a => {
-        if (a.path === b) {
-         return setFirstNameError(a.message)
-        }
-      })
-  }
+// function to get individual error
+  // const displayIndividualErrors = (errofArrays, b) => {
+  //     return (errofArrays.filter(a => {
+  //       if (a.path === b) {
+  //         setFirstNameError(a.message)
+  //       }
+  //     })
+  //     )
+  // }
 
   // submit form function
   const SubmitForm = async (e) => {
@@ -94,7 +95,7 @@ function SignUp() {
 
         const { data } = Response;
 
-        console.log(data, "data");
+        // console.log(data, "data");
 
         // if user details has been saved it shold redirect the user to the login page
         if (data) {
@@ -104,13 +105,14 @@ function SignUp() {
       } catch (error) {
         console.log(error.response.data, " : errormessage");
 
-        displayIndividualErrors(error.response.data)
+        // displayIndividualErrors(error.response.data)//invoking the displayIndividualErrors
        
         // input field error handling 
         if(error.response.data === "enter first name"){
            return setFirstNameError(error.response.data)
 
         };
+        
         if (error.response.data === "enter last name") {
           return setLastNameError(error.response.data)
         };
@@ -127,7 +129,7 @@ function SignUp() {
 
       //  duplicate error message for email
         if (error.message.includes(409)) {
-          setDuplicateEmailError(
+          return setDuplicateEmailError(
             "Sorry can't use this email, use a different one"
           );
         };

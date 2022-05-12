@@ -7,14 +7,14 @@
 #     "firstName":"yasira"
 # }
 
-Post http://localhost:5000/user
+Post http://localhost:5000/user/
 
 Content-Type: application/json;
 
 {
-  "firstName":"ayishathgbgfhg hju",
+  "firstName":"yasira",
   "lastName":"bance",
    "otherName":"faiza",
-  "email":"yasira@gmail.com",
+  "email":"yasirat@gmail.com",
     "password":"12345"
 }

@@ -21,7 +21,7 @@ function ResetPassword() {
 
   const [confirmPassword, setConfirmPassword] = useState(""); //confirm psaaword state
 
-  const [confirmPasswordError, setConfirmPasswordError] = useState(""); //confirm psaaword error state
+  // const [confirmPasswordError, setConfirmPasswordError] = useState(""); //confirm psaaword error state
 
   const [emptyPasswordField, setEmptyPasswordField] = useState(""); //emptyPasswordField state
 
@@ -45,15 +45,17 @@ function ResetPassword() {
           
       } else if (!newPassword) {
           
-          setEmptyNewPasswordField("Please enter new password");
+          return setEmptyNewPasswordField("Please enter new password");
           
       } else if (!confirmPassword) {
           
-          setEmptyConfirmNewPasswordField("Please confirm new password");
+          return setEmptyConfirmNewPasswordField("Please confirm new password");
           
       } else if (newPassword !== confirmPassword) {
           
-          setConfirmPasswordError("Passwords don't match");
+          // return setConfirmPasswordError("Passwords don't match");
+          return setEmptyConfirmNewPasswordField("Passwords don't match");
+
           
     } else {
           try {
@@ -210,7 +212,7 @@ function ResetPassword() {
                         )}
                         
 
-                        <div className="reseterror">{confirmPasswordError}</div>
+                        {/* <div className="reseterror">{confirmPasswordError}</div> */}
                         
                     </div>
                     

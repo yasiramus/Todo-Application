@@ -1,6 +1,10 @@
 const bcrypt = require("bcrypt"); //requirng  the bcrypt which is use for hashing the password
 
-const verifyCookie = require("jsonwebtoken");
+const verifyCookie = require("jsonwebtoken"); //jsonwebtoken
+
+const { v4: uuidv4 } = require("uuid"); //requirin the uuid version 4 using CommonJS syntax:
+
+const nodemailer = require("nodemailer"); //nodemailer
 
 const { User } = require("../model/user"); //requirng the User model using the destructing form
 
@@ -9,7 +13,9 @@ const { generateToken, getErrors } = require("../helper/gettoken");
 
 // sending or saving data to the database using the signUp
 const sendData = async (req, res) => {
+
   try {
+
     const { firstName, lastName, otherName, email, password } = req.body;
 
     const Data = {
@@ -23,33 +29,33 @@ const sendData = async (req, res) => {
     const saveData = await User(Data).save(); //save data
 
     res.status(201).json(saveData._id); // returns a user id
+
   } catch (error) {
     console.log(error.errors, " : error handling");
 
     // handling error for each input field when the user try submitting without entering details
     //     // the question mark is use to prevent the undefined of cant read properties when the use type in the input field
-    // if (error?.errors?.firstName?.properties?.path === "firstName") {
-    //   res.status(400).json(error.errors.firstName.properties.message);
-    // } else if (error?.errors?.lastName?.properties?.path === "lastName") {
-    //   res.status(400).json(error.errors.lastName.properties.message);
-    // } else if (error?.errors?.email?.properties?.path === "email") {
-    //   res.status(400).json(error.errors.email.properties.message);
-    // } else if (error?.errors?.password?.properties?.path === "password") {
-    //   res.status(403).json(error.errors.password.properties.message);
-    // } else {
-    //   res.status(422).json(error); // all error
-    // }
-
+    if (error?.errors?.firstName?.properties?.path === "firstName") {
+      res.status(400).json(error.errors.firstName.properties.message);
+    } else if (error?.errors?.lastName?.properties?.path === "lastName") {
+      res.status(400).json(error.errors.lastName.properties.message);
+    } else if (error?.errors?.email?.properties?.path === "email") {
+      res.status(400).json(error.errors.email.properties.message);
+    } else if (error?.errors?.password?.properties?.path === "password") {
+      res.status(403).json(error.errors.password.properties.message);
+    } 
     // duplicate email error
-    if (error.code === 11000) {
+    else if (error.code === 11000) {
       return res.status(409).json(error);
+    } else {
+      res.status(422).json(error); // all error
     }
 
     // calling the get error function
-    if (error.errors) {
-        console.log(getErrors(error.errors))
-        res.status(422).json(getErrors(error.errors))
-    }
+    // if (error.errors) {
+    //     console.log(getErrors(error.errors))
+    //     res.status(422).json(getErrors(error.errors))
+    // }
 
     //  res.status(422).json(error)//this sending all error message to thefrontend
   }
@@ -57,6 +63,7 @@ const sendData = async (req, res) => {
 
 // sending or saving data to the database using the logIn
 const userLogIn = async (req, res) => {
+  
   try {
     const { email, password } = req.body;
 
@@ -228,11 +235,62 @@ const resetPassword = async (req, res) => {
   }
 };
 
+const forgotPassword = async (req, res) => {
+ 
+  try {
+    
+    const { email } = req.params; //email as params
+
+    const resetToken = uuidv4(); //the uuidv4 is use for generating random strings
+    
+    const updateUserToken = await User.findOneAndUpdate({ email }, {resetToken}, { new: true });
+  
+    // if email doent exit 
+    if (!updateUserToken) {
+
+      return res.status(401).json("email not found")
+
+    } else {
+      
+      const transporter = nodemailer.createTransport({
+       
+        service: "gmail",
+
+        auth: {
+          user:"yasirayusif@gmail.com",
+          pass:"jfoznxdlvjlxbluo" //password generated from gmail security signing in mail
+        }
+        
+      });
+
+      const mailingOptions = {
+        from: "some@gmail.com",
+        to: `${email}`,
+        subject: "Todo Password Reset",
+        text: `Click this link to reset password : http://localhost:3000/forgotpassword/${resetToken}`,
+        replyTo:"some@gmail.com"
+      };
+
+      const request = await transporter.sendMail(mailingOptions);
+
+      console.log('req',request);
+
+      res.send("check your email for link")
+    }
+
+  } catch (error) {
+    console.log(error);
+    res.send(error)
+  }
+  
+ }
+
 // exportation of variables declared
 module.exports = {
   sendData,
   userLogIn,
   populateTodo,
   resetPassword,
+  forgotPassword,
   logOut,
 };

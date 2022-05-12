@@ -44,7 +44,10 @@ const userSchema = new Schema({
             type: Schema.Types.ObjectId,
             ref:'Todo'
         }
-    ]
+    ],
+    resetToken: {
+        type:String 
+    }
 },
     {
         timestamps: true
