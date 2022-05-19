@@ -28,9 +28,12 @@ function ForgotPassword() {
         }
     }
     return success ? ( 
+        <div className="changePassword">
         <div className=" successmsg">
             <h1>Check email for reset link </h1>
         </div>
+        </div>
+    
     ) : (
         <div className="changePassword">
                 
@@ -43,7 +46,7 @@ function ForgotPassword() {
               
               <div className="change_password_row">
                   
-                  <label htmlFor="currentPassword">email</label>
+                  <label htmlFor="currentPassword">Email</label>
                   
                   <input
                       

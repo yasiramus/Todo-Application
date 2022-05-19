@@ -143,6 +143,7 @@ function Login() {
 
           <div id="toggle" onClick={showPassword}> { toggle ? <BsEye/> : <BsEyeSlash/> }</div>
 
+            {/* error message for incorrect password */}
           {password && <div className="duplicateEmailError">{incorrectPassword}</div>}
           
         </div>
@@ -164,11 +165,11 @@ function Login() {
           login
         </button>
 
-        <button type="submit">
+        <div type="submit" id="btnLink">
           
           <Link to="/forgotpassword">Forgot Password ?</Link>
           
-        </button>
+        </div>
 
       </form>
 

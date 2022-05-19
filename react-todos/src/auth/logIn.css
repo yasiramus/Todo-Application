@@ -48,6 +48,7 @@
   .Row input:focus{
       background-color: #ddd;
       outline: none;
+      color:#000;
   }
   .Row label{
       color: #000;
@@ -63,6 +64,7 @@ label .svg{
 }
   .loginForm button {
       font-size: 20px;
+      text-align: center;
     background-color: #04AA6D;
     color: white;
     padding: 16px 20px;
@@ -83,9 +85,40 @@ label .svg{
       margin: 0 5px 0 10px;
   }
 
+  .noaccount > span a {
+    text-decoration: none;
+    color:#04AA6D;
+    font-weight: bold;
+  }
+
+  .noaccount > span a:hover {
+    color:#04aa20;
+    transition: color .2s ease-in 0.5s;
+  }
+
+  #btnLink{
+    text-align: center;
+    border: 2px solid #04AA6D;
+    font-size: 18px;
+    padding: 10px 20px;
+    cursor: pointer;
+    opacity: 0.7;
+    margin-bottom: 20px;
+  }
+  #btnLink a {
+    text-decoration: none;
+    color:#04AA6D;
+    font-weight: bold;
+  }
+
+  #btnLink:hover{
+    opacity: 1;
+    transition: opacity .2s ease-in 0.5s;
+}
+
   #toggle{
     position: absolute;
-    top: 57%;
+    top: 49%;
     right: 10%;
     font-size: 23px;
     cursor: pointer;

@@ -13,9 +13,7 @@ const { generateToken, getErrors } = require("../helper/gettoken");
 
 // sending or saving data to the database using the signUp
 const sendData = async (req, res) => {
-
   try {
-
     const { firstName, lastName, otherName, email, password } = req.body;
 
     const Data = {
@@ -29,7 +27,6 @@ const sendData = async (req, res) => {
     const saveData = await User(Data).save(); //save data
 
     res.status(201).json(saveData._id); // returns a user id
-
   } catch (error) {
     console.log(error.errors, " : error handling");
 
@@ -43,7 +40,7 @@ const sendData = async (req, res) => {
       res.status(400).json(error.errors.email.properties.message);
     } else if (error?.errors?.password?.properties?.path === "password") {
       res.status(403).json(error.errors.password.properties.message);
-    } 
+    }
     // duplicate email error
     else if (error.code === 11000) {
       return res.status(409).json(error);
@@ -63,7 +60,6 @@ const sendData = async (req, res) => {
 
 // sending or saving data to the database using the logIn
 const userLogIn = async (req, res) => {
-  
   try {
     const { email, password } = req.body;
 
@@ -147,10 +143,8 @@ const resetPassword = async (req, res) => {
         async (err, cookiePresent) => {
           //if occur during the process of varify for the presence of the token
           if (err) {
-
             return res.status(403).json(err);
           } else {
-
             //   find a user using its id, the one gotten from the cookie
             const user = await User.findOne({ _id: cookiePresent.id });
 
@@ -188,15 +182,12 @@ const resetPassword = async (req, res) => {
 
               // if new password matches with the old password
               if (oldMatches) {
-                res
-                  .status(422)
-                  .json( "usage of previous password not allowed" );
+                res.status(422).json("usage of previous password not allowed");
               }
 
               // if the new password dont match with old password it should go ahead
               //  to excute the code within the else block
               else {
-
                 //update the password to the new password
                 const updatePassword = await User.findByIdAndUpdate(
                   user._id,
@@ -211,11 +202,10 @@ const resetPassword = async (req, res) => {
                 //     { new: true }//the new means it should return a new value
                 //   );
 
-
-                // delete cookie after password update 
+                // delete cookie after password update
                 if (updatePassword) {
                   res.cookie("userAdmin", "", { maxAge: -1 });
-                  
+
                   return res
                     .status(201)
                     .json({ message: "password has been change successfully" });
@@ -236,31 +226,28 @@ const resetPassword = async (req, res) => {
 };
 
 const forgotPassword = async (req, res) => {
- 
   try {
-    
     const { email } = req.params; //email as params
 
     const resetToken = uuidv4(); //the uuidv4 is use for generating random strings
-    
-    const updateUserToken = await User.findOneAndUpdate({ email }, {resetToken}, { new: true });
-  
-    // if email doent exit 
+
+    const updateUserToken = await User.findOneAndUpdate(
+      { email },
+      { resetToken },
+      { new: true }
+    );
+
+    // if email doent exit
     if (!updateUserToken) {
-
-      return res.status(401).json("email not found")
-
+      return res.status(401).json("email not found");
     } else {
-      
       const transporter = nodemailer.createTransport({
-       
         service: "gmail",
 
         auth: {
-          user:"yasirayusif@gmail.com",
-          pass:"jfoznxdlvjlxbluo" //password generated from gmail security signing in mail
-        }
-        
+          user: process.env.AUTH_USER,
+          pass: process.env.AUTH_PASSCODE, //password generated from gmail security signing in mail
+        },
       });
 
       const mailingOptions = {
@@ -268,22 +255,43 @@ const forgotPassword = async (req, res) => {
         to: `${email}`,
         subject: "Todo Password Reset",
         text: `Click this link to reset password : http://localhost:3000/forgotpassword/${resetToken}`,
-        replyTo:"some@gmail.com"
+        replyTo: "some@gmail.com",
       };
 
       const request = await transporter.sendMail(mailingOptions);
 
-      console.log('req',request);
+      console.log("req", request);
 
-      res.send("check your email for link")
+      res.send("check your email for link");
     }
-
   } catch (error) {
     console.log(error);
-    res.send(error)
+    res.send(error);
   }
-  
- }
+};
+
+//  resetForgottenPassword
+const resetForgottenPassword = async (req, res) => {
+  try {
+    const { resetToken } = req.params;
+
+    const { newPassword } = req.body;
+
+    const hashedNewPassword = await bcrypt.hash(newPassword, 12); //hashing of new password
+
+    // find user using the resettoken, update the old pasword to the new password
+    await User.findOneAndUpdate(
+      { resetToken },
+      { password: hashedNewPassword },
+      { new: true }
+    );
+
+    res.sendStatus(200);
+  } catch (error) {
+    console.log(error);
+    res.status(501).json(error);
+  }
+};
 
 // exportation of variables declared
 module.exports = {
@@ -292,5 +300,6 @@ module.exports = {
   populateTodo,
   resetPassword,
   forgotPassword,
+  resetForgottenPassword,
   logOut,
 };
