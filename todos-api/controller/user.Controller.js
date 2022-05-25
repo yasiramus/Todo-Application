@@ -1,64 +1,255 @@
+const { isValidObjectId } = require("mongoose"); //isValidObjectId check if the object is valid a object
+
 const bcrypt = require("bcrypt"); //requirng  the bcrypt which is use for hashing the password
 
 const verifyCookie = require("jsonwebtoken"); //jsonwebtoken
 
-const { v4: uuidv4 } = require("uuid"); //requirin the uuid version 4 using CommonJS syntax:
+const { v4: uuidv4 } = require("uuid"); //requiring the uuid version 4 using CommonJS syntax:
 
-const nodemailer = require("nodemailer"); //nodemailer
+// const nodemailer = require("nodemailer"); //nodemailer
 
 const { User } = require("../model/user"); //requirng the User model using the destructing form
 
-// requiring the generateToken function
-const { generateToken, getErrors } = require("../helper/gettoken");
+const { verifyToken } = require("../model/varifyToken"); //requirng the verify model using the destructing form
 
-// sending or saving data to the database using the signUp
+const { generateOTP } = require("../helper/generateOTP");//requiring generateOTP from the helper folder
+
+// requiring the generateToken function from the helper folder
+const { generateToken } = require("../helper/gettoken");
+
+// /requiring mail transporter from the helper folder
+const { mailTransporter , generateEmailTemplate, welcomeMsg } = require("../helper/mailTransport");
+
+// signing user in by verifying the user email
 const sendData = async (req, res) => {
+
   try {
+
     const { firstName, lastName, otherName, email, password } = req.body;
 
-    const Data = {
+    const newUser = await new User({
+      
       firstName,
+      
       lastName,
+        
       otherName,
+        
       email,
+        
       password,
+        
+    });
+
+    //otp:one time password
+    // generaterated otp
+    const OTP = generateOTP();
+
+    // verificationToken to be saved to the database
+      const verificationToken = new verifyToken({
+
+          owner: newUser._id,
+          token: OTP
+
+      });
+
+        // saved the tokenVerified
+      const tokenVerified = await  verificationToken.save(); 
+       
+    // if tokenVerified isnt saved to the database  
+      if (!tokenVerified) {
+
+          res.status(422).json("verification token not saved")
+
+      }
+        // if token is saved
+      else {
+
+          await newUser.save(); //save the new user data into the database
+
+          // invoking nodemail transporter function for sending of email
+          const newTransporter = mailTransporter();
+          
+        // send email  
+        newTransporter.sendMail({
+            
+          from: "dummy@gmail.com",
+          
+          to: newUser.email,
+              
+          subject: "Verify your email account",
+              
+          html: generateEmailTemplate(OTP),
+              
+          replyTo: "dummy@gmail.com",
+              
+          });
+
+        res.status(201).json(newUser._id); // returns a user id
+        
     };
 
-    const saveData = await User(Data).save(); //save data
-
-    res.status(201).json(saveData._id); // returns a user id
   } catch (error) {
-    console.log(error.errors, " : error handling");
+
+    console.log(error, " : error handling");
 
     // handling error for each input field when the user try submitting without entering details
     //     // the question mark is use to prevent the undefined of cant read properties when the use type in the input field
     if (error?.errors?.firstName?.properties?.path === "firstName") {
-      res.status(400).json(error.errors.firstName.properties.message);
+
+      res.status(400).json(error.errors.firstName.properties.message)
+
     } else if (error?.errors?.lastName?.properties?.path === "lastName") {
-      res.status(400).json(error.errors.lastName.properties.message);
+
+      res.status(400).json(error.errors.lastName.properties.message)
+
     } else if (error?.errors?.email?.properties?.path === "email") {
-      res.status(400).json(error.errors.email.properties.message);
+
+      res.status(400).json(error.errors.email.properties.message)
+
     } else if (error?.errors?.password?.properties?.path === "password") {
-      res.status(403).json(error.errors.password.properties.message);
+
+      res.status(403).json(error.errors.password.properties.message)
+
     }
+      
     // duplicate email error
     else if (error.code === 11000) {
-      return res.status(409).json(error);
-    } else {
-      res.status(422).json(error); // all error
-    }
 
-    // calling the get error function
-    // if (error.errors) {
-    //     console.log(getErrors(error.errors))
-    //     res.status(422).json(getErrors(error.errors))
-    // }
+      return res.status(409).json(error)
 
-    //  res.status(422).json(error)//this sending all error message to thefrontend
+    } 
+
   }
 };
 
+
+const verifyEmail = async (req, res) => {
+  try {
+      
+      // const { userId, OTP } = req.body; this also works
+
+      const { OTP } = req.body; //requesting the otp
+
+      // setting the id 
+      const { id } = req.params;
+      
+      // if (!userId || !OTP.trim()) {
+      
+      // if user doesnt provide the otp
+          if (!OTP.trim()) {
+          
+          return res.status(401).json("Invalid request")
+      }
+      else {
+          // checking if the user id is not valid object id
+          // if (!isValidObjectId(userId)) {
+
+          if (!isValidObjectId(id)) {
+              
+              return res.status(401).json("Invalid user id")
+
+          } else {
+              // const user = await User.findById(userId);
+
+              const user = await User.findById(id);
+
+              if (!user) {
+
+                  res.status(404).json("Sorry, user not found");
+
+              } else if (user.verified) {
+                  res.status(401).json("This account has been verified already!")
+              } else {
+                  const token = await verifyToken.findOne({ owner: user._id });
+                  
+                  if (!token) {
+                      res.status(404).json("Sorry no user with this token")
+                  } else {
+                      const tokenMatched = await token.compareToken(OTP);
+                      
+                      if (!tokenMatched) {
+                          res.status(422).json("Please provide a valid token")
+                      } else {
+                          user.varified = true;
+
+                          // delete otp after user has been varified
+
+                          await verifyToken.findByIdAndDelete(token._id);
+
+                          await user.save();
+
+                          mailTransporter().sendMail({
+                              from: "dummy@gmail.com",
+                              to: user.email,
+                              subject: "Welcome email",
+                              html:welcomeMsg("Email Verified Successfully", "Thanks for connecting with us."),
+                              replyTo: "dummy@gmail.com",
+                          });
+
+                          res.status(201).json({
+                              message: "your email has been verified",
+                              user: { firstname: user.firstName }
+                          })
+                      }
+                  }
+              }
+          }
+      }
+
+  } catch (error) {
+
+    console.log(error);
+    
+    res.status(400).json(error)
+    
+  }
+}
+
+
 // sending or saving data to the database using the logIn
+// const userLogIn = async (req, res) => {
+//   try {
+//     const { email, password } = req.body;
+
+//     const user = await User.findOne({ email }); //finding a user using the registered email when signing up
+
+//     //if user exit
+//     if (user) {
+//       const matches = await bcrypt.compare(password, user.password); //compare the current password to the registered password
+
+//       // if password matches
+//       if (matches) {
+//         // passing the user id to the generateToken function
+//         const token = generateToken(user._id);
+
+//         // setting cookie for subsequent request
+//         // httpOnly prevent an intruder from accessing the cookie using javaScript and also
+//         // the httpOnly here means the cooking should only be access when a request is sent using only http
+//         res.cookie("userAdmin", token, {
+//           maxAge: 2 * 24 * 60 * 60 * 1000,
+//           httpOnly: true,
+//         });
+
+//         res.status(201).json({ matches: user._id }); //matches:user._id returns the user id that is if the password and email matches
+//       } else {
+//         // error message for password
+//         console.log("incorrect password");
+//         res.status(401).json("incorrect password");
+//       }
+//     } else {
+//       // error message for both password and email
+//       // the status code 403 means forbidden
+//       res.status(400).json({ errors: "Authentication failed" });
+//     }
+//   } catch (error) {
+//     console.log(error.message);
+//     res.send(error.message);
+//   }
+// };
+
+
+
 const userLogIn = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -98,6 +289,7 @@ const userLogIn = async (req, res) => {
     res.send(error.message);
   }
 };
+
 
 // logout
 const logOut = (req, res) => {
@@ -225,6 +417,7 @@ const resetPassword = async (req, res) => {
   }
 };
 
+// forgot password link  
 const forgotPassword = async (req, res) => {
   try {
     const { email } = req.params; //email as params
@@ -241,14 +434,14 @@ const forgotPassword = async (req, res) => {
     if (!updateUserToken) {
       return res.status(401).json("email not found");
     } else {
-      const transporter = nodemailer.createTransport({
-        service: "gmail",
+      // const transporter = nodemailer.createTransport({
+      //   service: "gmail",
 
-        auth: {
-          user: process.env.AUTH_USER,
-          pass: process.env.AUTH_PASSCODE, //password generated from gmail security signing in mail
-        },
-      });
+      //   auth: {
+      //     user: process.env.AUTH_USER,
+      //     pass: process.env.AUTH_PASSCODE, //password generated from gmail security signing in mail
+      //   },
+      // });
 
       const mailingOptions = {
         from: "some@gmail.com",
@@ -258,7 +451,9 @@ const forgotPassword = async (req, res) => {
         replyTo: "some@gmail.com",
       };
 
-      const request = await transporter.sendMail(mailingOptions);
+      // const request = await transporter.sendMail(mailingOptions);
+
+      mailTransporter().sendMail(mailingOptions);
 
       console.log("req", request);
 
@@ -296,6 +491,7 @@ const resetForgottenPassword = async (req, res) => {
 // exportation of variables declared
 module.exports = {
   sendData,
+  verifyEmail, 
   userLogIn,
   populateTodo,
   resetPassword,

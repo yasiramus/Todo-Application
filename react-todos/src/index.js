@@ -13,6 +13,8 @@ import Login from "./auth/logIn"; //login
 
 import SignUp from "./auth/sigup"; //signup
 
+import VerifyEmail from './pages/confirm_email';
+
 import ResetPassword from "./auth/resetPassword"; //resetpassword
 
 import ForgotPassword from "./auth/forgotpassword"; //forgotpassword
@@ -51,6 +53,8 @@ ReactDOM.render(
         <Route index element = {<Login />}></Route>
 
         <Route path='/signup' element={<SignUp />}></Route>
+
+        <Route path='/confirm_email' element={<VerifyEmail/>} ></Route>
 
         <Route path='/app' element={<App />}></Route>
         

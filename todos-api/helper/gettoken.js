@@ -33,4 +33,5 @@ const getErrors = (err) => {
     
 };
 
-module.exports = { generateToken, getErrors };
+
+module.exports = { generateToken };

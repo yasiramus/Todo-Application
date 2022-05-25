@@ -46,16 +46,16 @@ function SignUp() {
   const [confirmPasswordError, setConfirmPasswordError] = useState("");
 
   //const [confirmPasswordEmpty, setConfirmPasswordEmpty] = useState('');
-    
-    const [error, setError] = useState('');
 
-  const [error1, setError1] = useState('');
-  
-  const [emailMaxLenth, setEmailMaxLength] = useState('');
+  const [error, setError] = useState("");
 
-  const [passwordMaxLength, setPasswordMaxLength] = useState('');
-  
-// function to get individual error
+  const [error1, setError1] = useState("");
+
+  const [emailMaxLenth, setEmailMaxLength] = useState("");
+
+  const [passwordMaxLength, setPasswordMaxLength] = useState("");
+
+  // function to get individual error
   // const displayIndividualErrors = (errofArrays, b) => {
   //     return (errofArrays.filter(a => {
   //       if (a.path === b) {
@@ -95,68 +95,93 @@ function SignUp() {
 
         const { data } = Response;
 
-        // console.log(data, "data");
+        console.log(data, "data");
 
+        // setting of id in the local storage 
+        window.localStorage.setItem("id", JSON.stringify(data));
+        
         // if user details has been saved it shold redirect the user to the login page
         if (data) {
-          redirect("/", { replace: true });
+
+          redirect("/confirm_email", { replace: true });
+
         }
 
       } catch (error) {
-        console.log(error.response.data, " : errormessage");
+        console.log(error.response, " : errormessage");
 
         // displayIndividualErrors(error.response.data)//invoking the displayIndividualErrors
-       
-        // input field error handling 
-        if(error.response.data === "enter first name"){
-           return setFirstNameError(error.response.data)
 
-        };
-        
+        // input field error handling
+        if (error?.response?.data === "enter first name") {
+          return setFirstNameError(error.response.data);
+        }
+
         if (error.response.data === "enter last name") {
-          return setLastNameError(error.response.data)
-        };
-   
-          if (error.response.data === "enter email") {
-          
-            return setEmailError(error.response.data)
-          
-        };
+          return setLastNameError(error.response.data);
+        }
 
-           if (error.response.data === "enter last name") {
-            return setPasswordError(error.response.data);
-        };
+        if (error.response.data === "enter email") {
+          return setEmailError(error.response.data);
+        }
 
-      //  duplicate error message for email
+        if (error.response.data === "enter last name") {
+          return setPasswordError(error.response.data);
+        }
+
+        //  duplicate error message for email
         if (error.message.includes(409)) {
           return setDuplicateEmailError(
             "Sorry can't use this email, use a different one"
           );
-        };
+        }
 
-      //  maxlength and min length error handling 
-        if (error.response.data === "first name character should not exceed 9.") {
+        //  maxlength and min length error handling
+        if (
+          error.response.data === "first name character should not exceed 9."
+        ) {
           setError(error.response.data);
-        } else if(error.response.data === "first name character should not be below 2."){
-          setError(error.response.data)
-        };
+        } else if (
+          error.response.data === "first name character should not be below 2."
+        ) {
+          setError(error.response.data);
+        }
 
-      //  maxlength and min length error handling for last name
-     if (error.response.data === "last name character should not exceed 14.") {
-        setError1(error.response.data);
-      } else if(error.response.data === "last name character should not be below 2.")
-      setError1(error.response.data);
-      };
+        //  maxlength and min length error handling for last name
+        if (
 
-       //  maxlength error handling for email
-      if(error.response.data === "email character should not exceed 29.")
-          return setEmailMaxLength(error.response.data)
-    };
-    
-       //  maxlength error handling for password
-    if (error.response.data === "password should be above 5 characters.") {
-      return setPasswordMaxLength(error.response.data)
-    };
+          error.response.data === "last name character should not exceed 14."
+
+        )
+         {
+
+          setError1(error.response.data);
+
+        } else if (
+          error.response.data === "last name character should not be below 2."
+        ) {
+          setError1(error.response.data);
+        }     
+        //  maxlength error handling for email
+        if (error.response.data === "email character should not exceed 29.") {
+
+          return setEmailMaxLength(error.response.data);
+
+        }
+
+         //  maxlength error handling for password
+
+      if (error.response.data === "password should be above 5 characters.") {
+
+        return setPasswordMaxLength(error.response.data);
+
+        }
+
+        
+      }
+
+     
+    }
   };
 
   return (
@@ -181,13 +206,9 @@ function SignUp() {
             <div className="duplicateEmailError">{firstNameError}</div>
           )}
 
-          {
-            firstName.length < 9 ||
-            
-              (<div className="duplicateEmailError">{error}</div>)
-            
-            }
-                  
+          {firstName.length < 9 || (
+            <div className="duplicateEmailError">{error}</div>
+          )}
         </div>
 
         <div className="Row">
@@ -208,8 +229,7 @@ function SignUp() {
             <div className="duplicateEmailError">{lastNameError}</div>
           )}
 
-        <div className="duplicateEmailError">{error1}</div>
-
+          <div className="duplicateEmailError">{error1}</div>
         </div>
 
         <div className="Row">
@@ -244,11 +264,11 @@ function SignUp() {
             <div className="duplicateEmailError">{duplicateEmailError}</div>
           )}
 
-              {/* empty email input field  */}
+          {/* empty email input field  */}
           {!email && <div className="duplicateEmailError">{EmailError}</div>}
-          
+
           {/* emailMaxLenth */}
-          <div className="duplicateEmailError">{ emailMaxLenth }</div>
+          <div className="duplicateEmailError">{emailMaxLenth}</div>
         </div>
 
         <div className="Row">

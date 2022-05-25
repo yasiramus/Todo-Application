@@ -47,6 +47,11 @@ const userSchema = new Schema({
     ],
     resetToken: {
         type:String 
+    },
+    verified:{
+        type: Boolean,
+        default:false,
+        // required:true
     }
 },
     {
@@ -57,8 +62,10 @@ const userSchema = new Schema({
 // hashing of password before it get save to the database 
 userSchema.pre( 'save', async function (next) {
     
-    if (this.password.length > 50 ) {
+    if (this.password.length > 50) {
+        
         next()
+        
     } else {
         const salt = await bcrypt.genSalt(); //generate salt
 
