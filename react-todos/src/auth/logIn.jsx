@@ -1,5 +1,7 @@
 import "./logIn.css";
 
+// import { ShowModal } from "../modal/modal";
+
 // axios 
 import axios from "axios";
 
@@ -17,6 +19,8 @@ import { MdLockOutline } from "react-icons/md";
 // eyes icons 
 import { BsEye, BsEyeSlash } from "react-icons/bs"
 
+import ShowModal from "./../modal/modal";
+
 function Login() {
 
   const redirect = useNavigate();
@@ -32,6 +36,10 @@ function Login() {
   // setting the toggle state 
   const [toggle, setToggle] = useState(false);
 
+  const [isOpen, setIsOpen] = useState(false);
+
+  const [, setVerify] = useState("");
+
 // suBmit fxn 
   const suBmit = async (e) => {
 
@@ -44,12 +52,12 @@ function Login() {
         password,
       };
 
-      const response = await axios.post(`/user/login`,user);
+      const response = await axios.post(`/user/login`, user);
 
       const { data } = response;
 
-    // // setting of id in the local storage 
-    //   window.localStorage.setItem("id", JSON.stringify(data.matches));
+      // // setting of id in the local storage 
+      //   window.localStorage.setItem("id", JSON.stringify(data.matches));
       
       // matches is coming from the backend that from the user controller it a variable declared
       // if user exist it should redirect to the todo page
@@ -73,9 +81,15 @@ function Login() {
       }
 
       // unregistered email
-      if( error.response.data.errors === "Authentication failed")
-          return setUnRegisteredEmail(error.response.data.errors )
-        };
+      if (error.response.data.errors === "Authentication failed") {
+        
+        return setUnRegisteredEmail(error.response.data.errors)
+      };
+
+      if(error.response.data === "sorry your email hasn't been verified, click on the resend button"){
+        return setVerify(setIsOpen(true))
+      }
+  }    
 
   };
 
@@ -169,9 +183,12 @@ function Login() {
           
           <Link to="/forgotpassword">Forgot Password ?</Link>
           
-        </div>
-
+        </div>          
+        
+        <ShowModal open={isOpen} onClose={() => { setIsOpen(false) }} />
+        
       </form>
+      
 
     </div>
   );

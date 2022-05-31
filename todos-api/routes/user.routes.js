@@ -2,19 +2,16 @@ const express = require('express'); //express
 
 const Router = express.Router();//router
 
-const { sendData, verifyEmail, userLogIn, populateTodo,
+const { sendData, verifyEmail, userLogIn, resendOtp, populateTodo,
     resetPassword, forgotPassword, resetForgottenPassword, logOut } = require('../controller/user.Controller');
-
-// const { sendDatas, varifyEmail } = require("../controller/sign")
-// Router.post('/otp', sendDatas);//signup
-
-
 
 Router.post('/', sendData);//signup 
 
 Router.post('/verifyEmail/:id', verifyEmail ); //verify email
 
 Router.post('/login', userLogIn); //login
+
+Router.post('/:userId/resendOtp', resendOtp); //resendOtp
 
 Router.get("/populateUser/:id", populateTodo) //populating of todos
 

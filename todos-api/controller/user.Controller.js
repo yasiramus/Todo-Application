@@ -171,7 +171,7 @@ const verifyEmail = async (req, res) => {
                       if (!tokenMatched) {
                           res.status(422).json("Please provide a valid token")
                       } else {
-                          user.varified = true;
+                          user.verified = true;
 
                           // delete otp after user has been varified
 
@@ -187,7 +187,7 @@ const verifyEmail = async (req, res) => {
                               replyTo: "dummy@gmail.com",
                           });
 
-                          res.status(201).json({
+                              res.status(201).json({
                               message: "your email has been verified",
                               user: { firstname: user.firstName }
                           })
@@ -249,46 +249,158 @@ const verifyEmail = async (req, res) => {
 // };
 
 
-
 const userLogIn = async (req, res) => {
+  
   try {
+    
     const { email, password } = req.body;
 
     const user = await User.findOne({ email }); //finding a user using the registered email when signing up
 
-    //if user exit
+    // if user exit 
     if (user) {
-      const matches = await bcrypt.compare(password, user.password); //compare the current password to the registered password
+      
+      const userNotVerified = await user.verified === false;// return a boolean true
 
-      // if password matches
-      if (matches) {
-        // passing the user id to the generateToken function
-        const token = generateToken(user._id);
+      // if user email has not been verified 
+      if (userNotVerified) {
 
-        // setting cookie for subsequent request
-        // httpOnly prevent an intruder from accessing the cookie using javaScript and also
-        // the httpOnly here means the cooking should only be access when a request is sent using only http
-        res.cookie("userAdmin", token, {
-          maxAge: 2 * 24 * 60 * 60 * 1000,
-          httpOnly: true,
-        });
+        return res.status(404).json("sorry your email hasn't been verified, click on the resend button")
 
-        res.status(201).json({ matches: user._id }); //matches:user._id returns the user id that is if the password and email matches
-      } else {
-        // error message for password
-        console.log("incorrect password");
-        res.status(401).json("incorrect password");
       }
+      // if user email has been verified excute the code within the else block 
+      else {
+
+        const matches = await bcrypt.compare(password, user.password); //compare the current password to the registered password
+
+        // if password matches 
+        if (matches) {
+
+          // generate token using the user id 
+          const token = generateToken(user._id);
+
+          // setting cookie for subsequent request
+          // httpOnly prevent an intruder from accessing the cookie using javaScript and also
+          // the httpOnly here means the cooking should only be access when a request is sent using only http
+          res.cookie("userAdmin", token, {
+          
+            maxAge: 2 * 24 * 60 * 60 * 1000,
+            
+            httpOnly: true,
+          
+          });
+
+          res.status(201).json({ matches: user._id }); //matches:user._id returns the user id that is if the password and email matches
+
+        } else {
+
+          // error message for password
+          res.status(401).json("incorrect password");
+          
+        }
+
+      }
+
     } else {
+      
       // error message for both password and email
       // the status code 403 means forbidden
       res.status(400).json({ errors: "Authentication failed" });
+
     }
+
   } catch (error) {
-    console.log(error.message);
-    res.send(error.message);
+
+    console.log(error);
+
+    res.send(error.message)
+
   }
 };
+
+const resendOtp = async(req,res) => {
+
+  try {
+    
+    const { userId } = req.params;
+
+    const findUser = await User.findById(userId);
+
+    console.log(findUser.id, 'vu');
+    
+    if (findUser.id) {
+      
+      const newOTP = generateOTP()
+    
+       // verificationToken to be saved to the database
+       const verificationToken = new verifyToken({
+
+        owner: findUser.id,
+        token: newOTP
+
+       });
+      //  there is an error with this side 
+      console.log( verificationToken,'tt');
+      if (verificationToken) {
+        
+        const pu=  await verifyToken.findByIdAndUpdate(findUser.owner, verificationToken.token,{new:true})
+        console.log(pu,'pu');
+          return res.json(pu)
+      }
+    } else {
+
+      res.status(404).json("No user found")
+
+    }
+
+  } catch (error) {
+    
+    console.log(error);
+    res.send(error);
+  }
+}
+
+// loging in user without email verification 
+// const userLogIns = async (req, res) => {
+//   try {
+//     const { email, password } = req.body;
+
+//     const user = await User.findOne({ email }); //finding a user using the registered email when signing up
+
+//     //if user exit
+//     if (user) {
+
+//       const matches = await bcrypt.compare(password, user.password); //compare the current password to the registered password
+      
+//       // if password matches
+//       if (matches) {
+//         // passing the user id to the generateToken function
+//         const token = generateToken(user._id);
+
+//         // setting cookie for subsequent request
+//         // httpOnly prevent an intruder from accessing the cookie using javaScript and also
+//         // the httpOnly here means the cooking should only be access when a request is sent using only http
+//         res.cookie("userAdmin", token, {
+//           maxAge: 2 * 24 * 60 * 60 * 1000,
+//           httpOnly: true,
+//         });
+
+//         res.status(201).json({ matches: user._id }); //matches:user._id returns the user id that is if the password and email matches
+//       } else {
+//         // error message for password
+//         console.log("incorrect password");
+//         res.status(401).json("incorrect password");
+//       }
+//     } else {
+//       // error message for both password and email
+//       // the status code 403 means forbidden
+//       res.status(400).json({ errors: "Authentication failed" });
+//     }
+//   } catch (error) {
+//     console.log(error.message);
+//     res.send(error.message);
+//   }
+// };
 
 
 // logout
@@ -297,8 +409,12 @@ const logOut = (req, res) => {
     res.cookie("userAdmin", "", { maxAge: -1 }); //remove cookie and replace it with empty string
 
     res.sendStatus(200); //status code
+
   } catch (error) {
+
     console.log(error);
+    res.send(error.message)
+    
   }
 };
 
@@ -493,6 +609,7 @@ module.exports = {
   sendData,
   verifyEmail, 
   userLogIn,
+  resendOtp,
   populateTodo,
   resetPassword,
   forgotPassword,
