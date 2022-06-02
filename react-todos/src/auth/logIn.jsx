@@ -185,7 +185,10 @@ function Login() {
           
         </div>          
         
-        <ShowModal open={isOpen} onClose={() => { setIsOpen(false) }} />
+        {/* <ShowModal open={isOpen} onClose={() => { setIsOpen(false) }} /> */}
+
+        <ShowModal open={isOpen}/>
+
         
       </form>
       

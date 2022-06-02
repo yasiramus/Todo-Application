@@ -10,11 +10,11 @@ const verificationTokenSchema = new Schema({
         // in storing object id inside mongodb
         type: Schema.Types.ObjectId,
         ref: 'User',
-        required: true
+        // required: true
     },
     token: {
         type:String,
-        required:true 
+        // required:true 
     },
     createdAt: {
         type: Date,
@@ -26,8 +26,10 @@ const verificationTokenSchema = new Schema({
 
 // hashing of token before it get save to the database 
 verificationTokenSchema.pre( 'save', async function (next) {
-    
-    if (this.isModified("token")) {
+    // if (!this.token) {
+    //     next()
+    // }
+     if (this.isModified("token")) {
 
         const hash = await bcrypt.hash(this.token, 8);
 

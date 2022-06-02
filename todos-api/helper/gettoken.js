@@ -7,19 +7,20 @@ const generateToken = (id) => {
   });
 };
 
+
 // getErrors function
 const getErrors = (err) => {
 
   // setting an empty array
   const arrayOfErrors = [];
 
+  console.log(err, 'errr')
   // looping through the err using the parameter set 
   Object.values(err).forEach(({ properties }) => {
 
     // extracting the message and path properties from the object 
-      const { validator, type, value, ...props } = properties;
-      
-    // console.log('p', properties);
+      // the props is user defined 
+    const { validator, type, value, ...props } = properties;
       
       arrayOfErrors.push(props); //pushing the prop into the empty arrayoferrors
 
@@ -32,6 +33,5 @@ const getErrors = (err) => {
     return arrayOfErrors; //returning the arrayof errors
     
 };
-
 
 module.exports = { generateToken };

@@ -23,7 +23,7 @@ const mailTransporter = () => {
 
 //     });
 
-const generateEmailTemplate = (code) => {
+const generateEmailTemplate = (firstName,code) => {
   return `
 
     <!DOCTYPE html>
@@ -62,7 +62,7 @@ const generateEmailTemplate = (code) => {
           color: 272727;
         "
       >
-        Hi
+        Hi ${firstName},
       </h1>
       <h2>
         Are you ready to gain access to all of the assets we prepared for

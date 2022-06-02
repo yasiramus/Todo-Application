@@ -1,6 +1,43 @@
+// importation of axios package 
+import axios from "axios";
+
+import { useNavigate } from "react-router-dom";
+
+import { useState } from "react";
+
 import "./modal.css";
 
-function ShowModal({ open, onClose }) {
+// function ShowModal({ open, onClose }) {
+
+function ShowModal({ open }) {
+        
+    const redirect = useNavigate();
+
+    const [error, setError] = useState(false);
+    
+    const reSendCode = async (e) => {
+
+        e.preventDefault();
+
+        try{
+
+            const Response =await axios.put(`user/${JSON.parse(localStorage.getItem("id"))}/reSendNewOp`);
+
+            console.log(Response)
+
+            const { data } = Response;
+
+            if (data) {
+                
+                redirect("confirm_email",{replace:true})
+            } else {
+                setError(true);
+            }
+        } catch (error) {
+
+            console.log(error.response)
+        } 
+    }
 
     if (!open) {
       
@@ -14,7 +51,8 @@ function ShowModal({ open, onClose }) {
                 
             <div className="overlay">
                 
-                <div className="modalContainer">
+                    <div className="modalContainer">
+                        <p>{ error}</p>
                     
                     <p> 
                         
@@ -22,7 +60,13 @@ function ShowModal({ open, onClose }) {
                         
                     </p>
                         
-                    <button type="submit" onClick={onClose}>
+                    {/* <button type="submit" onClick={onClose}>
+                        
+                        Resend Code
+                        
+                    </button> */}
+
+                    <button type="submit" onClick={reSendCode}>
                         
                         Resend Code
                         

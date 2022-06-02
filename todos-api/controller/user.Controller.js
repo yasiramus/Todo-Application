@@ -19,6 +19,7 @@ const { generateToken } = require("../helper/gettoken");
 
 // /requiring mail transporter from the helper folder
 const { mailTransporter , generateEmailTemplate, welcomeMsg } = require("../helper/mailTransport");
+// const { token } = require("morgan");
 
 // signing user in by verifying the user email
 const sendData = async (req, res) => {
@@ -41,37 +42,56 @@ const sendData = async (req, res) => {
         
     });
 
-    //otp:one time password
-    // generaterated otp
-    const OTP = generateOTP();
+    // const newUser = {
+      
+    //   firstName,
+      
+    //   lastName,
+        
+    //   otherName,
+        
+    //   email,
+        
+    //   password,
+        
+    // };
 
-    // verificationToken to be saved to the database
-      const verificationToken = new verifyToken({
+    console.log(newUser,'bh')
 
-          owner: newUser._id,
-          token: OTP
+      //otp:one time password
+      // generaterated otp
+      const OTP = generateOTP();
+
+      // verificationToken to be saved to the database
+      const verificationToken =await new  verifyToken({
+
+        owner: newUser._id,
+        token: OTP
 
       });
-
-        // saved the tokenVerified
-      const tokenVerified = await  verificationToken.save(); 
+      console.log(verificationToken)
+    if (!verificationToken) {
+      return res.send("err")
+    }
+      // saved the tokenVerified
+      const tokenVerified = await verificationToken.save();
        
-    // if tokenVerified isnt saved to the database  
+      // if tokenVerified isnt saved to the database  
       if (!tokenVerified) {
 
-          res.status(422).json("verification token not saved")
+        res.status(422).json("verification token not saved")
 
       }
-        // if token is saved
+      // if token is saved
       else {
 
-          await newUser.save(); //save the new user data into the database
+        await newUser.save(); //save the new user data into the database
 
-          // invoking nodemail transporter function for sending of email
-          const newTransporter = mailTransporter();
+        // invoking nodemail transporter function for sending of email
+        const newTransporter = mailTransporter();
           
         // send email  
-        newTransporter.sendMail({
+         await newTransporter.sendMail({
             
           from: "dummy@gmail.com",
           
@@ -79,19 +99,19 @@ const sendData = async (req, res) => {
               
           subject: "Verify your email account",
               
-          html: generateEmailTemplate(OTP),
+          html: generateEmailTemplate( newUser.firstName, OTP),
               
           replyTo: "dummy@gmail.com",
               
-          });
+        });
 
         res.status(201).json(newUser._id); // returns a user id
         
-    };
+      };
 
   } catch (error) {
 
-    console.log(error, " : error handling");
+    console.log(error.message, " : error handling");
 
     // handling error for each input field when the user try submitting without entering details
     //     // the question mark is use to prevent the undefined of cant read properties when the use type in the input field
@@ -318,35 +338,70 @@ const userLogIn = async (req, res) => {
   }
 };
 
-const resendOtp = async(req,res) => {
+// resend otp if user hasnt been verified 
+const reSendNewOtp = async (req, res) => {
 
   try {
-    
+    // desturing the user id 
     const { userId } = req.params;
 
+    // finding a user by it id 
     const findUser = await User.findById(userId);
-
-    console.log(findUser.id, 'vu');
-    
-    if (findUser.id) {
+  
+    // if userexit
+    if (findUser) {
       
-      const newOTP = generateOTP()
-    
-       // verificationToken to be saved to the database
-       const verificationToken = new verifyToken({
+      // if user hasnt been verified 
+      // findUser.verified === false returns a true value
+      if (findUser.verified === false) {
 
-        owner: findUser.id,
-        token: newOTP
-
-       });
-      //  there is an error with this side 
-      console.log( verificationToken,'tt');
-      if (verificationToken) {
+        // generate a newOtp
+        const newOTP = generateOTP();
         
-        const pu=  await verifyToken.findByIdAndUpdate(findUser.owner, verificationToken.token,{new:true})
-        console.log(pu,'pu');
-          return res.json(pu)
+        // hashed the newotp generated
+        const hashedNewToken = await bcrypt.hash(newOTP, 8);
+
+        // update the previous token saved within the verify token collections to the
+        // new token  using the users id 
+          const updateTokenOtp = await verifyToken.findOneAndUpdate(
+
+            findUser._id,
+            { token: hashedNewToken },
+            
+          { new: true } //the new means it should return a new value
+        );
+
+        // if token has been updated 
+        if (updateTokenOtp) {
+          
+          // sending of mail to the users email 
+         await mailTransporter().sendMail({
+
+            from: "dummy@gmail.com",
+
+            to: findUser.email,
+
+            subject: "Verify your email account",
+              
+            html: generateEmailTemplate(newOTP),
+                
+            replyTo: "dummy@gmail.com"
+
+        });
+        
+          res.status(201).json("token updated successful")
+          
+        } else {
+          
+          res.status(501).json("token hasn't been updated")
       }
+        
+      } else {
+
+        res.status(200).json("account has been verified, please login")
+
+      }
+
     } else {
 
       res.status(404).json("No user found")
@@ -356,6 +411,7 @@ const resendOtp = async(req,res) => {
   } catch (error) {
     
     console.log(error);
+
     res.send(error);
   }
 }
@@ -609,7 +665,7 @@ module.exports = {
   sendData,
   verifyEmail, 
   userLogIn,
-  resendOtp,
+  reSendNewOtp,
   populateTodo,
   resetPassword,
   forgotPassword,
