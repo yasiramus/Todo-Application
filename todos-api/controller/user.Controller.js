@@ -19,7 +19,6 @@ const { generateToken } = require("../helper/gettoken");
 
 // /requiring mail transporter from the helper folder
 const { mailTransporter , generateEmailTemplate, welcomeMsg } = require("../helper/mailTransport");
-// const { token } = require("morgan");
 
 // signing user in by verifying the user email
 const sendData = async (req, res) => {
@@ -27,8 +26,8 @@ const sendData = async (req, res) => {
   try {
 
     const { firstName, lastName, otherName, email, password } = req.body;
-
-    const newUser = await new User({
+       
+    const newUser = {
       
       firstName,
       
@@ -40,105 +39,100 @@ const sendData = async (req, res) => {
         
       password,
         
-    });
+    };
+       
+      //save the new user data into the database
+    const newUserSaved = new User(newUser);
 
-    // const newUser = {
-      
-    //   firstName,
-      
-    //   lastName,
-        
-    //   otherName,
-        
-    //   email,
-        
-    //   password,
-        
-    // };
+      //save the new user data into the database 
+    const saveUser = await newUserSaved.save();
+    
+      // if user hasnt been saved 
+      if (!saveUser) {
 
-    console.log(newUser,'bh')
-
-      //otp:one time password
-      // generaterated otp
-      const OTP = generateOTP();
+        return res.status(401).json("User has not been saved")
+          
+      } else {
+          
+        //otp:one time password
+        // generaterated otp
+       const OTP = generateOTP();
 
       // verificationToken to be saved to the database
-      const verificationToken =await new  verifyToken({
+      const verificationToken = await new verifyToken({
 
-        owner: newUser._id,
+        owner: saveUser._id,
+
         token: OTP
 
       });
-      console.log(verificationToken)
-    if (!verificationToken) {
-      return res.send("err")
-    }
-      // saved the tokenVerified
-      const tokenVerified = await verificationToken.save();
-       
-      // if tokenVerified isnt saved to the database  
-      if (!tokenVerified) {
-
-        res.status(422).json("verification token not saved")
-
-      }
-      // if token is saved
-      else {
-
-        await newUser.save(); //save the new user data into the database
-
-        // invoking nodemail transporter function for sending of email
-        const newTransporter = mailTransporter();
-          
-        // send email  
-         await newTransporter.sendMail({
-            
-          from: "dummy@gmail.com",
-          
-          to: newUser.email,
-              
-          subject: "Verify your email account",
-              
-          html: generateEmailTemplate( newUser.firstName, OTP),
-              
-          replyTo: "dummy@gmail.com",
-              
-        });
-
-        res.status(201).json(newUser._id); // returns a user id
         
-      };
+      // saved the tokenVerified to database 
+        const tokenVerified = await verificationToken.save();
+        
+        if (!tokenVerified) {
+
+          res.status(404).json("verification token not saved")
+
+        } else {
+      
+          // invoking nodemail transporter function for sending of email
+          const newTransporter = mailTransporter();
+          
+          // send email  
+          await newTransporter.sendMail({
+            
+            from: "dummy@gmail.com",
+          
+            to: saveUser.email,
+              
+            subject: "Verify your email account",
+              
+            html: generateEmailTemplate(saveUser.firstName, OTP),
+            replyTo: "dummy@gmail.com",
+            
+          });
+
+          res.status(201).json(saveUser._id); // returns a user id
+
+        }
+        
+      }
 
   } catch (error) {
 
-    console.log(error.message, " : error handling");
+    console.log(error, " : error handling"); 
 
-    // handling error for each input field when the user try submitting without entering details
-    //     // the question mark is use to prevent the undefined of cant read properties when the use type in the input field
+     // handling error for each input field when the user try submitting without entering details
+    // the question mark is use to prevent the undefined of cant read properties when the use type in the input field
+    // this error handling for the maxlength and minlengths field only for all input field including otherName 
     if (error?.errors?.firstName?.properties?.path === "firstName") {
 
-      res.status(400).json(error.errors.firstName.properties.message)
+      res.status(400).json(error.errors.firstName.properties.message);
 
     } else if (error?.errors?.lastName?.properties?.path === "lastName") {
 
-      res.status(400).json(error.errors.lastName.properties.message)
+      res.status(400).json(error.errors.lastName.properties.message);
+
+    } else if (error?.errors?.otherName?.properties?.path === "otherName") {
+
+      res.status(400).json(error.errors.otherName.properties.message);
 
     } else if (error?.errors?.email?.properties?.path === "email") {
 
-      res.status(400).json(error.errors.email.properties.message)
+      res.status(400).json(error.errors.email.properties.message);
 
     } else if (error?.errors?.password?.properties?.path === "password") {
 
-      res.status(403).json(error.errors.password.properties.message)
+      res.status(403).json(error.errors.password.properties.message);
 
     }
-      
     // duplicate email error
-    else if (error.code === 11000) {
+     else if (error.code === 11000) {
 
-      return res.status(409).json(error)
-
-    } 
+       return res.status(409).json(error)
+       
+     } 
 
   }
 };
@@ -147,75 +141,75 @@ const sendData = async (req, res) => {
 const verifyEmail = async (req, res) => {
   try {
       
-      // const { userId, OTP } = req.body; this also works
+    // const { userId, OTP } = req.body; this also works
 
-      const { OTP } = req.body; //requesting the otp
+    const { OTP } = req.body; //requesting the otp
 
-      // setting the id 
-      const { id } = req.params;
+    // setting the id 
+    const { id } = req.params;
       
-      // if (!userId || !OTP.trim()) {
+    // if (!userId || !OTP.trim()) {
       
-      // if user doesnt provide the otp
-          if (!OTP.trim()) {
+    // if user doesnt provide the otp
+    if (!OTP.trim()) {
           
-          return res.status(401).json("Invalid request")
-      }
-      else {
-          // checking if the user id is not valid object id
-          // if (!isValidObjectId(userId)) {
+      return res.status(401).json("Invalid request")
+    }
+    else {
+      // checking if the user id is not valid object id
+      // if (!isValidObjectId(userId)) {
 
-          if (!isValidObjectId(id)) {
+      if (!isValidObjectId(id)) {
               
-              return res.status(401).json("Invalid user id")
+        return res.status(401).json("Invalid user id")
 
-          } else {
-              // const user = await User.findById(userId);
+      } else {
+        // const user = await User.findById(userId);
 
-              const user = await User.findById(id);
+        const user = await User.findById(id);
 
-              if (!user) {
+        if (!user) {
 
-                  res.status(404).json("Sorry, user not found");
+          res.status(404).json("Sorry, user not found");
 
-              } else if (user.verified) {
-                  res.status(401).json("This account has been verified already!")
-              } else {
-                  const token = await verifyToken.findOne({ owner: user._id });
+        } else if (user.verified) {
+          res.status(401).json("This account has been verified already!")
+        } else {
+          const token = await verifyToken.findOne({ owner: user._id });
                   
-                  if (!token) {
-                      res.status(404).json("Sorry no user with this token")
-                  } else {
-                      const tokenMatched = await token.compareToken(OTP);
+          if (!token) {
+            res.status(404).json("Sorry no user with this token")
+          } else {
+            const tokenMatched = await token.compareToken(OTP);
                       
-                      if (!tokenMatched) {
-                          res.status(422).json("Please provide a valid token")
-                      } else {
-                          user.verified = true;
+            if (!tokenMatched) {
+              res.status(422).json("Please provide a valid token")
+            } else {
+              user.verified = true;
 
-                          // delete otp after user has been varified
+              // delete otp after user has been varified
 
-                          await verifyToken.findByIdAndDelete(token._id);
+              await verifyToken.findByIdAndDelete(token._id);
 
-                          await user.save();
+              await user.save();
 
-                          mailTransporter().sendMail({
-                              from: "dummy@gmail.com",
-                              to: user.email,
-                              subject: "Welcome email",
-                              html:welcomeMsg("Email Verified Successfully", "Thanks for connecting with us."),
-                              replyTo: "dummy@gmail.com",
-                          });
+              mailTransporter().sendMail({
+                from: "dummy@gmail.com",
+                to: user.email,
+                subject: "Welcome email",
+                html: welcomeMsg("Email Verified Successfully", "Thanks for connecting with us."),
+                replyTo: "dummy@gmail.com",
+              });
 
-                              res.status(201).json({
-                              message: "your email has been verified",
-                              user: { firstname: user.firstName }
-                          })
-                      }
-                  }
-              }
+              res.status(201).json({
+                message: "your email has been verified",
+                user: { firstname: user.firstName }
+              })
+            }
           }
+        }
       }
+    }
 
   } catch (error) {
 
@@ -224,51 +218,10 @@ const verifyEmail = async (req, res) => {
     res.status(400).json(error)
     
   }
-}
+};
 
 
-// sending or saving data to the database using the logIn
-// const userLogIn = async (req, res) => {
-//   try {
-//     const { email, password } = req.body;
-
-//     const user = await User.findOne({ email }); //finding a user using the registered email when signing up
-
-//     //if user exit
-//     if (user) {
-//       const matches = await bcrypt.compare(password, user.password); //compare the current password to the registered password
-
-//       // if password matches
-//       if (matches) {
-//         // passing the user id to the generateToken function
-//         const token = generateToken(user._id);
-
-//         // setting cookie for subsequent request
-//         // httpOnly prevent an intruder from accessing the cookie using javaScript and also
-//         // the httpOnly here means the cooking should only be access when a request is sent using only http
-//         res.cookie("userAdmin", token, {
-//           maxAge: 2 * 24 * 60 * 60 * 1000,
-//           httpOnly: true,
-//         });
-
-//         res.status(201).json({ matches: user._id }); //matches:user._id returns the user id that is if the password and email matches
-//       } else {
-//         // error message for password
-//         console.log("incorrect password");
-//         res.status(401).json("incorrect password");
-//       }
-//     } else {
-//       // error message for both password and email
-//       // the status code 403 means forbidden
-//       res.status(400).json({ errors: "Authentication failed" });
-//     }
-//   } catch (error) {
-//     console.log(error.message);
-//     res.send(error.message);
-//   }
-// };
-
-
+// loging a user in by checking whether their email accout has been verified or not
 const userLogIn = async (req, res) => {
   
   try {
@@ -310,7 +263,7 @@ const userLogIn = async (req, res) => {
           
           });
 
-          res.status(201).json({ matches: user._id }); //matches:user._id returns the user id that is if the password and email matches
+          res.status(201).json({ matches: user.firstName }); //returns the user first that is if the password and email matches
 
         } else {
 
@@ -383,7 +336,7 @@ const reSendNewOtp = async (req, res) => {
 
             subject: "Verify your email account",
               
-            html: generateEmailTemplate(newOTP),
+            html: generateEmailTemplate(findUser.firstName, newOTP),
                 
             replyTo: "dummy@gmail.com"
 

@@ -69,7 +69,7 @@ function Verify_Email() {
                   </div>                 
 
         <input
-          type="number"
+          type="text"
           id="code"
           placeholder="Enter Code"
           autoComplete="off"

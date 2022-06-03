@@ -8,14 +8,14 @@ const userSchema = new Schema({
 
     firstName: {
         type: String,
-        required: [true,'enter first name'],
+        required: true,
         minlength: [3, 'first name character should not be below 2.'],
         maxlength: [10, 'first name character should not exceed 9.']
     },
 
     lastName: {
         type: String,
-        required: [true,'enter last name'],
+        required: true,
         minlength: [3, 'last name character should not be below 2.'],
         maxlength: [15, 'last name character should not exceed 14.']
     },
@@ -27,7 +27,7 @@ const userSchema = new Schema({
 
     email: {
         type: String,
-        required: [true,'enter email'],
+        required: true,
         maxlength: [30, 'email character should not exceed 29.'],
         lowercase: true,
         trim:true,
@@ -36,7 +36,7 @@ const userSchema = new Schema({
 
     password: {
         type: String,
-        required:[true, 'enter password'],
+        required:true,
         minlength: [5, 'password should be above 5 characters.'],
     },
     todos: [

@@ -18,7 +18,7 @@ const verificationTokenSchema = new Schema({
     },
     createdAt: {
         type: Date,
-        expires: "2m", //3600:16mins 1800:8mins
+        expires: 1000, //3600:16mins 1800:8mins
         default:Date.now //will be assigned whenever a user create an account
     }
 }
@@ -27,16 +27,16 @@ const verificationTokenSchema = new Schema({
 // hashing of token before it get save to the database 
 verificationTokenSchema.pre( 'save', async function (next) {
     // if (!this.token) {
-    //     next()
+    //     return;
     // }
-     if (this.isModified("token")) {
+      if (this.isModified("token")) {
 
         const hash = await bcrypt.hash(this.token, 8);
 
         this.token = hash
     } 
+    next();
     
-        next();
     
 })
 

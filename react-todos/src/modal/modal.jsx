@@ -1,38 +1,38 @@
 // importation of axios package 
 import axios from "axios";
 
+// useNavigate
 import { useNavigate } from "react-router-dom";
 
-import { useState } from "react";
-
+// modal css
 import "./modal.css";
 
 // function ShowModal({ open, onClose }) {
 
 function ShowModal({ open }) {
-        
+
+        // useNavigate for redirection or navigation or routing
     const redirect = useNavigate();
 
-    const [error, setError] = useState(false);
-    
+    // resend code  fxn 
     const reSendCode = async (e) => {
 
         e.preventDefault();
 
         try{
 
-            const Response =await axios.put(`user/${JSON.parse(localStorage.getItem("id"))}/reSendNewOp`);
-
-            console.log(Response)
+            // sendind the  request 
+            const Response = await axios.put(`user/${JSON.parse(localStorage.getItem("id"))}/reSendNewOtp`);
 
             const { data } = Response;
 
+            // redirection to the confirm email page 
             if (data) {
                 
-                redirect("confirm_email",{replace:true})
-            } else {
-                setError(true);
-            }
+                redirect("confirm_email", { replace: true })
+                
+            } 
+
         } catch (error) {
 
             console.log(error.response)
@@ -52,8 +52,7 @@ function ShowModal({ open }) {
             <div className="overlay">
                 
                     <div className="modalContainer">
-                        <p>{ error}</p>
-                    
+
                     <p> 
                         
                         Sorry your account hasn't been verified, click on the resend button to verify account
